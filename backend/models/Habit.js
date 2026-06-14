@@ -11,7 +11,7 @@ const CATEGORIES = [
     'Other',
 ];
 
-export habitSchema = new mongoose.Schema(
+const habitSchema = new mongoose.Schema(
     {
         userId: {
             type: mongoose.Schema.Types.ObjectId,
