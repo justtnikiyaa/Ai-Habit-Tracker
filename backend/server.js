@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import { connectDB } from "./config/db.js";
+import authRoutes from "./routes/auth.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 
 const app = express();
@@ -37,6 +38,9 @@ app.use(express.json({ limit: "1mb" }));
 app.get("/api/health", (req, res) => {
     res.json({ status: "ok", time: new Date().toISOString() });
 });
+
+// Auth routes
+app.use("/api/auth", authRoutes);
 
 const PORT = process.env.PORT || 8000;
 
