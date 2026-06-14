@@ -2,8 +2,8 @@ import http from 'http';
 
 const testRegister = () => {
     const data = JSON.stringify({
-        name: 'NewTestUser',
-        email: 'newtest@example.com',
+        name: 'AnotherUser',
+        email: 'another@example.com',
         password: 'password123'
     });
 
