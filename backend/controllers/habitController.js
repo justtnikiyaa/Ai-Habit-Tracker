@@ -15,18 +15,18 @@ export const createHabit = async (req, res) => {
 
 export const createHabit = async (req, res) => {
     try {
-        const { 
-            name, 
-            description, 
-            category, 
-            frequency, 
-            targetDays, 
-            color, 
+        const {
+            name,
+            description,
+            category,
+            frequency,
+            targetDays,
+            color,
             icon,
         } = req.body;
         if (!name) {
             return res.status(400).json({ message: "Habit Name is required" });
-        } 
+        }
 
         const count = await Habit.countDocuments({ userId: req.user._id });
         const habit = await Habit.crete({
@@ -71,4 +71,53 @@ export const updateHabit = async (req, res) => {
     } catch (error) {
         res.status(500).json({ message: err.message });
     }
-};  
+};
+
+export const deleteHabit = async (req, res) => {
+    try {
+        const habit = await Habit.findOneAndDelete({
+            _id: req.params.id,
+            userId: req.user._id,
+        });
+        if (!habit) return res.status(404).json({ message: "Habit not found" });
+        await HabitLog.deleteMany({ habitId: habit._id, userId: req.user._id });
+        res.json({ message: "Habit deleted" })
+    } catch (error) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+export const archiveHabit = async (req, res) => {
+    try {
+        const habit = await Habit.findOne({
+            _id: req.params.id,
+            userId: req.user._id,
+        });
+        if (!habit) return res.status(404).json({ message: "Habit not found" });
+        habit.isArchieved = !habit.isArchieved;
+        await habit.save();
+        res.json(habit);
+    } catch (error) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+export const reorderHabits = async (req, res) => {
+    try {
+        const { order } = req.body; //an array of habit IDs in the new order
+        if (!Array.isArray(order)) {
+            return res.status(400).json({ message: "Order must be an array" });
+        }
+        await Promise.all(
+            order.map((id, idx) =>
+                Habit.updateHabit(
+                    { _id: id, userId: req.user._id },
+                    { $set: { order: idx } }
+                )
+            )
+        );
+        res.json({ message: "Reordered" });
+    } catch (error) {
+        res.status(500).json({ message: err.message });
+    }
+};
